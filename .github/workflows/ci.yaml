@@ -47,5 +47,5 @@ jobs:
           build-args: |
             DEPLOY_REF=${{ github.sha }}
           tags: |
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:lab4
             ghcr.io/${{ github.repository }}:${{ github.sha }}

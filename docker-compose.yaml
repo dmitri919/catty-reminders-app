@@ -6,16 +6,16 @@ services:
     restart: unless-stopped
 
     environment:
-      MARIADB_DATABASE: catty_reminders
-      MARIADB_USER: catty
-      MARIADB_PASSWORD: cattypass
-      MARIADB_ROOT_PASSWORD: rootpass
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
 
     volumes:
       - catty-db-data:/var/lib/mysql
 
   app:
-    image: ${IMAGE_NAME:-ghcr.io/dmitri919/catty-reminders-app}:${IMAGE_TAG:-latest}
+    image: ${IMAGE_NAME:-ghcr.io/dmitri919/catty-reminders-app}:${IMAGE_TAG:-lab4}
 
     restart: unless-stopped
 
