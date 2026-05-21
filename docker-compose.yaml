@@ -15,7 +15,7 @@ services:
       - catty-db-data:/var/lib/mysql
 
   app:
-    image: ${IMAGE_NAME:-ghcr.io/limekh/catty-reminders-app}:${IMAGE_TAG:-latest}
+    image: ${IMAGE_NAME:-ghcr.io/dmitri919/catty-reminders-app}:${IMAGE_TAG:-latest}
 
     restart: unless-stopped
 
