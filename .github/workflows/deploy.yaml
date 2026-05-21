@@ -7,42 +7,41 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Prepare Image Name (lowercase)
-        id: prep
-        run: |
-          echo "repo_lower=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-
-      - name: Remote Docker Compose Deploy via SSH
+      - name: Deploy exact release commit with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: course.prafdin.ru
-          username: dmitri
-          port: 3173
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 30m
           script: |
             set -e
 
-            export DEPLOY_REF=${{ github.sha }}
-            export IMAGE=ghcr.io/${{ github.repository_owner }}/catty-reminders-app:lab4
-            export APP_CONTAINER_NAME=catty-app
-            export DB_CONTAINER_NAME=catty-db
-            export MARIADB_ROOT_PASSWORD=mypass
-            export MARIADB_USER=root
-            export MARIADB_PASSWORD=mypass
-            export MARIADB_DATABASE=catty_reminders
-            export HOST_APP_PORT=8181
-            export CONTAINER_APP_PORT=8181
-            export HOST_DB_PORT=3306
-            export CONTAINER_DB_PORT=3306
-
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
             cd /home/dmitri/app
-            docker compose up -d --pull always --remove-orphans
+            git fetch --all --tags
+            git checkout --detach ${{ github.sha }}
 
-            docker image prune -f
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-            echo "✅ Deploy complete: $IMAGE"
+            IMAGE_NAME=ghcr.io/${{ github.repository }} \
+            IMAGE_TAG=${{ github.sha }} \
+            docker compose pull
+
+            IMAGE_NAME=ghcr.io/${{ github.repository }} \
+            IMAGE_TAG=${{ github.sha }} \
+            docker compose up -d --force-recreate --remove-orphans
+
+            for i in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:8181/login >/dev/null; then
+                exit 0
+              fi
+              sleep 5
+            done
+
+            docker compose ps
+            docker compose logs app
+            docker compose logs db
+            exit 1
