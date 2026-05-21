@@ -78,7 +78,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           BASE_URL: http://127.0.0.1:8181
         run: |
-          pytest tests/ --junitxml=test_result.xml -v --tb=short || true
+          pytest tests/ --junitxml=test_result.xml -v --tb=short
 
           if [ -f test_result.xml ] && [ -s test_result.xml ]; then
             echo "✅ test_result.xml created successfully"
