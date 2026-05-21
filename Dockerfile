@@ -6,9 +6,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ ./app/
-COPY static/ ./static/ 2>/dev/null || true
-COPY templates/ ./templates/ 2>/dev/null || true
-COPY config.json . 2>/dev/null || true
+COPY static/ ./static/
+COPY templates/ ./templates/
+COPY config.json .
 
 EXPOSE 8181
 
