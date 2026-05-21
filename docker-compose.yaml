@@ -1,0 +1,42 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: catty-db
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+    ports:
+      - "${HOST_DB_PORT}:${CONTAINER_DB_PORT}"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - catty-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  catty-app:
+    image: ${IMAGE}
+    container_name: catty-app
+    restart: always
+    environment:
+      - DEPLOY_REF=${DEPLOY_REF}
+    ports:
+      - "${HOST_APP_PORT}:${CONTAINER_APP_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - catty-network
+
+networks:
+  catty-network:
+    driver: bridge
+
+volumes:
+  db_data:

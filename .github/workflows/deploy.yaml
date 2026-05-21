@@ -8,15 +8,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Prepare Image Name (lowercase)
-        id: prep
-        run: |
-          echo "repo_lower=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-
-      - name: Remote Docker Deploy via SSH
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: course.prafdin.ru
@@ -26,31 +20,29 @@ jobs:
           script: |
             set -e
 
+            # export
+            export DEPLOY_REF=${{ github.sha }}
+            export IMAGE=ghcr.io/${{ github.repository_owner }}/catty-reminders-app:${{ github.sha }}
 
-            IMAGE="ghcr.io/${{ steps.prep.outputs.repo_lower }}:lab3"
-            CONTAINER_NAME="catty-app"
-            HOST_PORT=8181
-            CONTAINER_PORT=8181
+            export APP_CONTAINER_NAME=catty-app
+            export DB_CONTAINER_NAME=catty-db
+
+            export MARIADB_ROOT_PASSWORD=mypass
+            export MARIADB_USER=dmitri
+            export MARIADB_PASSWORD=mypass
+            export MARIADB_DATABASE=catty_reminders
+            export HOST_DB_PORT=3306
+            export CONTAINER_DB_PORT=3306
+
+            export HOST_APP_PORT=8181
+            export CONTAINER_APP_PORT=8181
 
             echo "Logging in to GHCR..."
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            echo "Pulling image: $IMAGE"
-            docker pull $IMAGE
-
-            echo "Stopping old container..."
-            docker stop $CONTAINER_NAME || true
-            docker rm $CONTAINER_NAME || true
-
-            echo "Starting new container..."
-            docker run -d \
-              --name $CONTAINER_NAME \
-              -p $HOST_PORT:$CONTAINER_PORT \
-              --restart unless-stopped \
-              -e DEPLOY_REF=${{ github.sha }} \
-              $IMAGE
-
-            echo "Cleaning up old images..."
-            docker image prune -f
+            echo "Deploying stack with Docker Compose..."
+            cd /home/dmitri/app
+            docker compose pull
+            docker compose up -d --remove-orphans --force-recreate
 
             echo "✅ Deploy complete: $IMAGE"
