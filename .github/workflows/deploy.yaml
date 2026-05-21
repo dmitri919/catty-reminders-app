@@ -10,7 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy via SSH
+      - name: Prepare Image Name (lowercase)
+        id: prep
+        run: |
+          echo "repo_lower=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Remote Docker Compose Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: course.prafdin.ru
@@ -20,29 +25,24 @@ jobs:
           script: |
             set -e
 
-            # export
             export DEPLOY_REF=${{ github.sha }}
-            export IMAGE=ghcr.io/${{ github.repository_owner }}/catty-reminders-app:${{ github.sha }}
-
+            export IMAGE=ghcr.io/${{ github.repository_owner }}/catty-reminders-app:lab4
             export APP_CONTAINER_NAME=catty-app
             export DB_CONTAINER_NAME=catty-db
-
             export MARIADB_ROOT_PASSWORD=mypass
-            export MARIADB_USER=dmitri
+            export MARIADB_USER=root
             export MARIADB_PASSWORD=mypass
             export MARIADB_DATABASE=catty_reminders
+            export HOST_APP_PORT=8181
+            export CONTAINER_APP_PORT=8181
             export HOST_DB_PORT=3306
             export CONTAINER_DB_PORT=3306
 
-            export HOST_APP_PORT=8181
-            export CONTAINER_APP_PORT=8181
-
-            echo "Logging in to GHCR..."
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            echo "Deploying stack with Docker Compose..."
             cd /home/dmitri/app
-            docker compose pull
-            docker compose up -d --remove-orphans --force-recreate
+            docker compose up -d --pull always --remove-orphans
+
+            docker image prune -f
 
             echo "✅ Deploy complete: $IMAGE"

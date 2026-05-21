@@ -15,11 +15,10 @@ services:
     networks:
       - catty-network
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-pmypass"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MARIADB_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 60s
 
   catty-app:
     image: ${IMAGE}
@@ -29,6 +28,8 @@ services:
       - DEPLOY_REF=${DEPLOY_REF}
     ports:
       - "${HOST_APP_PORT}:${CONTAINER_APP_PORT}"
+    volumes:
+      - ./config.json:/catty-reminders-app/config.json:ro
     depends_on:
       db:
         condition: service_healthy
