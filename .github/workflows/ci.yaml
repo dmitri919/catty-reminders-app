@@ -65,7 +65,7 @@ jobs:
           name: test_result
           path: test_result.xml
           retention-days: 1
-
+  # Docker
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
@@ -76,6 +76,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Prepare Image Name (lowercase)
         id: prep
