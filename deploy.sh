@@ -32,7 +32,7 @@ echo "DEPLOY_REF=$DEPLOY_REF" | sudo tee /etc/app-deploy-env
 # Перезапускаем приложение
 echo "Restarting application..."
 sudo systemctl daemon-reload
-sudo systemctl restart app
+sudo systemctl restart catty
 
 # Проверка статуса
 sleep 3
