@@ -17,6 +17,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -e
-            cd /home/dmitri/app
+            cd /home/dmitri/app/catty-reminders-app
             chmod +x ./deploy.sh
             ./deploy.sh ${{ github.sha }}
