@@ -36,7 +36,7 @@ sudo systemctl restart catty
 
 # Проверка статуса
 sleep 3
-if systemctl is-active --quiet app; then
+if systemctl is-active --quiet catty; then
     echo "✅ SUCCESS: Deployed $DEPLOY_REF"
 else
     echo "❌ ERROR: Application failed to start"
