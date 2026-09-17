@@ -42,3 +42,4 @@ else
     echo "❌ ERROR: Application failed to start"
     exit 1
 fi
+#
