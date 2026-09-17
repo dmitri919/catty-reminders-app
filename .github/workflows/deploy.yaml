@@ -11,7 +11,7 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: course.prafdin.ru
+          host: course.prafdin.space
           username: dmitri
           port: 3173
           key: ${{ secrets.SSH_PRIVATE_KEY }}
