@@ -2,7 +2,7 @@
 set -e
 
 DEPLOY_REF=$1
-APP_DIR="/home/dmitri/app"
+APP_DIR="/home/dmitri/app/catty-reminders-app"
 
 echo "=== DEPLOY релиза ==="
 echo "Target SHA: $DEPLOY_REF"
