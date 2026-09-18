@@ -7,7 +7,15 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      packages: read
+
     steps:
+      - name: Prepare image name
+        id: prep
+        run: |
+          echo "image=ghcr.io/$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -17,6 +25,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -e
-            cd /home/dmitri/app/catty-reminders-app
-            chmod +x ./deploy.sh
-            ./deploy.sh ${{ github.sha }}
+            IMAGE="${{ steps.prep.outputs.image }}:${{ github.sha }}"
+            echo "${{ secrets.GITHUB_TOKEN }}" | sudo /usr/bin/docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            sudo /usr/bin/docker pull "$IMAGE"
+            sudo /usr/bin/docker rm catty-reminders-app || true
+            
+            sudo /usr/bin/docker run -d \
+              --name catty-reminders-app \
+              --restart unless-stopped \
+              -p 8181:8181 \
+              "$IMAGE"
