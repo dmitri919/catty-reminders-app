@@ -37,5 +37,4 @@ jobs:
               -p 8181:8181 \
               "$IMAGE"
 
-
             sudo /usr/bin/docker image prune -a -f
