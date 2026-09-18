@@ -89,7 +89,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.prep.outputs.image }}:latest
             ${{ steps.prep.outputs.image }}:${{ github.sha }}
           build-args: |
             DEPLOY_REF=${{ github.sha }}
