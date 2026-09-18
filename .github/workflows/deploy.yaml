@@ -28,6 +28,7 @@ jobs:
             IMAGE="${{ steps.prep.outputs.image }}:${{ github.sha }}"
             echo "${{ secrets.GITHUB_TOKEN }}" | sudo /usr/bin/docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             sudo /usr/bin/docker pull "$IMAGE"
+
             sudo /usr/bin/docker stop catty-reminders-app || true
             sudo /usr/bin/docker rm catty-reminders-app || true
             
