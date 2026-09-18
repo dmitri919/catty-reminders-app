@@ -39,3 +39,4 @@ jobs:
               "$IMAGE"
 
             sudo /usr/bin/docker image prune -a -f
+
