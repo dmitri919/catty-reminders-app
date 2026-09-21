@@ -59,7 +59,9 @@ jobs:
           path: test_result.xml
           retention-days: 1
 
+
   build-and-push:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
