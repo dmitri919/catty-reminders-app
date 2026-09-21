@@ -13,7 +13,7 @@ services:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 6
 
   app:
     image: ${IMAGE:?}
