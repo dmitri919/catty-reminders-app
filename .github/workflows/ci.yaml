@@ -2,9 +2,7 @@ name: CI
 
 on:
   push:
-    branches:
-      - lab4
-      - lab4_autotests*
+    branches: [ lab4* ]
 
 jobs:
   build-and-push:
