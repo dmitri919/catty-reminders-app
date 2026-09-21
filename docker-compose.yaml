@@ -16,15 +16,25 @@ services:
       retries: 6
 
   app:
+    deploy:
+      replicas: 10
     image: ${IMAGE:?}
     restart: unless-stopped
-    ports:
-      - "8181:8181"
+#    ports:
+#      - "8181:8181"
     volumes:
       - ./config.json:/catty-reminders-app/config.json:ro
     depends_on:
       db:
         condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "8181:80"
+    depends_on:
+      - app
 
 volumes:
   db_data:
