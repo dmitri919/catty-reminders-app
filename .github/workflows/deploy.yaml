@@ -34,5 +34,6 @@ jobs:
             export MARIADB_DATABASE=catty_reminders
             export MARIADB_USER=root
             export MARIADB_PASSWORD=mypass
-
+            
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             docker compose up -d --pull always --remove-orphans
