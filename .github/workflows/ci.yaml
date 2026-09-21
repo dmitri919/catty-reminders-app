@@ -10,6 +10,24 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+#Docker service container (MariaDB)
+    services:
+      db:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: mypass
+          MARIADB_DATABASE: catty_reminders
+          MARIADB_USER: root
+          MARIADB_PASSWORD: mypass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 6
+#___
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,6 +44,13 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov playwright
           playwright install --with-deps chromium
+
+#GitHub Action container 127.0.0.1(db)
+      - name: Patch config for CI
+        run: |
+          sed -i 's/"host": "db"/"host": "127.0.0.1"/g' config.json
+          cat config.json
+#___
 
       - name: Start app in background
         run: |
