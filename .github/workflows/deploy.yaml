@@ -24,19 +24,15 @@ jobs:
           port: 3173
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            set -e
-            IMAGE="${{ steps.prep.outputs.image }}:${{ github.sha }}"
-            echo "${{ secrets.GITHUB_TOKEN }}" | sudo /usr/bin/docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-            sudo /usr/bin/docker pull "$IMAGE"
-
-            sudo /usr/bin/docker stop catty-reminders-app || true
-            sudo /usr/bin/docker rm catty-reminders-app || true
+            set -eu
             
-            sudo /usr/bin/docker run -d \
-              --name catty-reminders-app \
-              --restart unless-stopped \
-              -p 8181:8181 \
-              "$IMAGE"
+            cd /home/dmitri/app/catty-reminders-app
 
-            sudo /usr/bin/docker image prune -a -f
+            export COMPOSE_PROJECT_NAME=catty-reminders-app
+            export IMAGE="${{ steps.prep.outputs.image }}:${{ github.sha }}"
+            export MARIADB_ROOT_PASSWORD=mypass
+            export MARIADB_DATABASE=catty_reminders
+            export MARIADB_USER=root
+            export MARIADB_PASSWORD=mypass
 
+            docker compose up -d --pull always --remove-orphans
