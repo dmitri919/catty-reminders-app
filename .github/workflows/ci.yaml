@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ lab4* ]
+    branches:
+      - lab4
+      - lab4_autotests*
 
 jobs:
   test:
@@ -59,16 +61,14 @@ jobs:
           path: test_result.xml
           retention-days: 1
 
-
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Prepare image name
